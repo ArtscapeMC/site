@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Хранилище - ArtscapeLab</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-tertiary: #16213e;
+            --accent: #e94560;
+            --accent-hover: #ff6b85;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+            --border: #2d3748;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary), var(--bg-tertiary));
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeSlideDown 0.8s ease;
+        }
+
+        @keyframes fadeSlideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 {
+            font-size: 3.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, var(--accent), #ff6b85, #ffd54f);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(233, 69, 96, 0.3);
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            padding: 12px 24px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .back-button:hover {
+            background: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(233, 69, 96, 0.4);
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            animation: fadeIn 1s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .gallery-item {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            animation: scaleIn 0.5s ease backwards;
+        }
+
+        .gallery-item:nth-child(1) { animation-delay: 0.1s; }
+        .gallery-item:nth-child(2) { animation-delay: 0.15s; }
+        .gallery-item:nth-child(3) { animation-delay: 0.2s; }
+        .gallery-item:nth-child(4) { animation-delay: 0.25s; }
+        .gallery-item:nth-child(5) { animation-delay: 0.3s; }
+
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-8px) scale(1.03);
+            box-shadow: 0 12px 24px rgba(233, 69, 96, 0.4);
+        }
+
+        .media-container {
+            position: relative;
+            width: 100%;
+            padding-top: 100%;
+            background: var(--bg-primary);
+            overflow: hidden;
+        }
+
+        .media-container img,
+        .media-container video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery-item:hover .media-container img,
+        .gallery-item:hover .media-container video {
+            transform: scale(1.1);
+        }
+
+        .play-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(233, 69, 96, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            transition: all 0.3s ease;
+            z-index: 2;
+        }
+
+        .play-icon::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 20px solid white;
+            border-top: 12px solid transparent;
+            border-bottom: 12px solid transparent;
+            margin-left: 4px;
+        }
+
+        .gallery-item:hover .play-icon {
+            transform: translate(-50%, -50%) scale(1.2);
+            box-shadow: 0 0 30px rgba(233, 69, 96, 0.8);
+        }
+
+        .filename {
+            padding: 15px;
+            text-align: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+            background: rgba(0,0,0,0.2);
+        }
+
+        /* Модальное окно (лайтбокс) */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            position: relative;
+            animation: zoomIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes zoomIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .lightbox-content img,
+        .lightbox-content video {
+            max-width: 100%;
+            max-height: 85vh;
+            border-radius: 8px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.8);
+        }
+
+        .lightbox-title {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 1.5em;
+            color: var(--text-primary);
+        }
+
+        .close-lightbox {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 50px;
+            color: white;
+            cursor: pointer;
+            z-index: 1001;
+            transition: all 0.3s ease;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(233, 69, 96, 0.8);
+            border-radius: 50%;
+        }
+
+        .close-lightbox:hover {
+            transform: rotate(90deg) scale(1.2);
+            background: var(--accent);
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 100px 20px;
+            font-size: 1.5em;
+            color: var(--text-secondary);
+        }
+
+        /* Адаптивность */
+        @media (max-width: 1400px) {
+            .gallery { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        @media (max-width: 1024px) {
+            .gallery { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5em; }
+            .gallery { grid-template-columns: repeat(2, 1fr); gap: 15px; }
+            .play-icon { width: 50px; height: 50px; }
+        }
+
+        @media (max-width: 480px) {
+            .gallery { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="index.html" class="back-button">← Назад на главную</a>
+            <h1>📁 Хранилище</h1>
+        </header>
+
+        <div class="gallery" id="gallery"></div>
+        <div class="empty-message" id="emptyMessage" style="display: none;">
+            Хранилище пусто. Добавьте файлы в папку "media" и укажите их в коде.
+        </div>
+    </div>
+
+    <div class="lightbox" id="lightbox">
+        <span class="close-lightbox" onclick="closeLightbox()">×</span>
+        <div class="lightbox-content" id="lightboxContent"></div>
+    </div>
+
+    <script>
+        // ========================================
+        // СПИСОК ФАЙЛОВ - ЗДЕСЬ ДОБАВЛЯЙТЕ СВОИ ФАЙЛЫ
+        // ========================================
+        const mediaFiles = [
+            // Примеры (замените на свои файлы):
+            { name: 'test1.jpg', type: 'image' },
+            { name: 'test2.mp4', type: 'video' },
+            { name: 'Mace1.mp4', type: 'video' },
+            { name: '3 Flats.mp4', type: 'video' },
+            { name: 'Parkour.mp4', type: 'video' },
+            { name: 'Догонялки с дешом.mp4', type: 'video' },
+            { name: 'Раздал стиля.mp4', type: 'video' },
+            { name: 'Uneployment final boss 💀.mp4', type: 'video' },
+            { name: 'Creeper PvP be like.mp4', type: 'video' },
+            { name: 'Mace hit.mp4', type: 'video' },
+            { name: 'Elytra Stun.mp4', type: 'video' },
+            { name: '2 taps.mp4', type: 'video' },
+            { name: 'parkour woolpixel.mp4', type: 'video' },
+            { name: 'parkour 3.mp4', type: 'video' },
+            { name: 'pro gamer.mp4', type: 'video' },
+            { name: '3 chain whh.mp4', type: 'video' },
+            { name: '5 инклайнед тапов.mp4', type: 'video' },
+            { name: '2x xylen bridge.mp4', type: 'video' },
+            { name: 'VideoMeme.mp4', type: 'video' },
+            { name: 'Meme 1.jpg', type: 'image' },
+            { name: 'Meme 2.jpg', type: 'image' },
+            { name: 'Meme 3.jpg', type: 'image' },
+            { name: 'Meme 4.jpg', type: 'image' },
+            { name: 'Meme 5.jpg', type: 'image' }
+        ];
+
+        const mediaFolder = 'media/'; // Папка с медиа (относительно HTML)
+
+        // Генерация галереи
+        const gallery = document.getElementById('gallery');
+        const emptyMessage = document.getElementById('emptyMessage');
+
+        if (mediaFiles.length === 0) {
+            emptyMessage.style.display = 'block';
+        } else {
+            mediaFiles.forEach((file, index) => {
+                const item = document.createElement('div');
+                item.className = 'gallery-item';
+                
+                const mediaContainer = document.createElement('div');
+                mediaContainer.className = 'media-container';
+
+                const filenameWithoutExt = file.name.replace(/\.[^/.]+$/, '');
+
+                if (file.type === 'image') {
+                    const img = document.createElement('img');
+                    img.src = mediaFolder + file.name;
+                    img.alt = filenameWithoutExt;
+                    img.loading = 'lazy';
+                    mediaContainer.appendChild(img);
+                } else if (file.type === 'video') {
+                    const video = document.createElement('video');
+                    video.src = mediaFolder + file.name;
+                    video.muted = true;
+                    video.loop = false;
+                    mediaContainer.appendChild(video);
+
+                    const playIcon = document.createElement('div');
+                    playIcon.className = 'play-icon';
+                    mediaContainer.appendChild(playIcon);
+                }
+
+                const filename = document.createElement('div');
+                filename.className = 'filename';
+                filename.textContent = filenameWithoutExt;
+
+                item.appendChild(mediaContainer);
+                item.appendChild(filename);
+                item.onclick = () => openLightbox(file, filenameWithoutExt);
+
+                gallery.appendChild(item);
+            });
+        }
+
+        // Лайтбокс
+        function openLightbox(file, name) {
+            const lightbox = document.getElementById('lightbox');
+            const content = document.getElementById('lightboxContent');
+            content.innerHTML = '';
+
+            if (file.type === 'image') {
+                const img = document.createElement('img');
+                img.src = mediaFolder + file.name;
+                content.appendChild(img);
+            } else if (file.type === 'video') {
+                const video = document.createElement('video');
+                video.src = mediaFolder + file.name;
+                video.controls = true;
+                video.autoplay = true;
+                content.appendChild(video);
+            }
+
+            const title = document.createElement('div');
+            title.className = 'lightbox-title';
+            title.textContent = name;
+            content.appendChild(title);
+
+            lightbox.classList.add('active');
+        }
+
+        function closeLightbox() {
+            const lightbox = document.getElementById('lightbox');
+            const content = document.getElementById('lightboxContent');
+            
+            // Останавливаем видео при закрытии
+            const video = content.querySelector('video');
+            if (video) {
+                video.pause();
+            }
+
+            lightbox.classList.remove('active');
+        }
+
+        // Закрытие по клику на фон
+        document.getElementById('lightbox').onclick = function(e) {
+            if (e.target === this) {
+                closeLightbox();
+            }
+        };
+
+        // Закрытие по ESC
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            }
+        });
+    </script>
+</body>
+</html>

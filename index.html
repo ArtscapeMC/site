@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ArtscapeLab</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #1a1a2e;
+            --bg-gradient: linear-gradient(135deg, #0a0a0f 0%, #1a1a2e 25%, #16213e 50%, #0f3460 100%);
+            --accent: #e94560;
+            --accent-glow: #ff6b85;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0a0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            cursor: default;
+            opacity: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .logo {
+            font-size: clamp(4rem, 12vw, 10rem);
+            font-weight: 900;
+            background: linear-gradient(45deg, var(--accent), #ff6b85, #ffd54f, var(--accent));
+            background-size: 400% 400%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 40px;
+            letter-spacing: 0.1em;
+            /* Уменьшенное свечение */
+            text-shadow: 
+                0 0 8px rgba(255, 107, 133, 0.4),
+                0 0 20px rgba(255, 107, 133, 0.2);
+            animation: logoShimmer 3s ease-in-out infinite, logoFloat 6s ease-in-out infinite;
+            position: relative;
+        }
+
+        @keyframes logoShimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-20px) scale(1.05); }
+        }
+
+        .description {
+            font-size: clamp(1.2rem, 3vw, 1.8rem);
+            color: var(--text-secondary);
+            margin-bottom: 60px;
+            max-width: 600px;
+            line-height: 1.6;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeSlideUp 1.5s ease-out 1s forwards;
+        }
+
+        @keyframes fadeSlideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .play-button {
+            display: inline-block;
+            padding: 20px 50px;
+            font-size: clamp(1.1rem, 2.5vw, 1.4rem);
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(45deg, var(--accent), var(--accent-glow));
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            text-decoration: none;
+            box-shadow: 
+                0 10px 30px rgba(233, 69, 96, 0.4),
+                0 0 40px rgba(255, 107, 133, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeSlideUp 1.5s ease-out 1.8s forwards;
+        }
+
+        .play-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+
+        .play-button:hover::before {
+            left: 100%;
+        }
+
+        .play-button:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 
+                0 20px 50px rgba(233, 69, 96, 0.6),
+                0 0 60px rgba(255, 107, 133, 0.5),
+                inset 0 0 20px rgba(255,255,255,0.2);
+        }
+
+        .play-button:active {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        .glitch {
+            position: relative;
+        }
+
+        .glitch::before,
+        .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 var(--accent-glow);
+            animation: glitch-anim 2s infinite linear alternate-reverse;
+        }
+
+        .glitch::after {
+            left: -2px;
+            text-shadow: 2px 0 var(--accent-glow);
+            animation: glitch-anim2 2s infinite linear alternate-reverse;
+        }
+
+        @keyframes glitch-anim {
+            0%  { clip: rect(42px, 9999px, 44px, 0); transform: skew(0.6deg); }
+            5%  { clip: rect(17px, 9999px, 46px, 0); transform: skew(0.4deg); }
+            10% { clip: rect(42px, 9999px, 52px, 0); transform: skew(0.8deg); }
+            15% { clip: rect(29px, 9999px, 57px, 0); transform: skew(0.2deg); }
+            20% { clip: rect(29px, 9999px, 57px, 0); transform: skew(0.6deg); }
+            25% { clip: rect(21px, 9999px, 58px, 0); transform: skew(0.2deg); }
+            30% { clip: rect(42px, 9999px, 44px, 0); transform: skew(0.4deg); }
+            35% { clip: rect(24px, 9999px, 46px, 0); transform: skew(0.6deg); }
+            40% { clip: rect(9px,  9999px, 58px, 0); transform: skew(0.2deg); }
+        }
+
+        @keyframes glitch-anim2 {
+            0%  { clip: rect(64px, 9999px,  4px, 0); transform: skew(0.8deg); }
+            5%  { clip: rect(51px, 9999px, 51px, 0); transform: skew(0.4deg); }
+            10% { clip: rect(40px, 9999px, 36px, 0); transform: skew(0.2deg); }
+            15% { clip: rect(28px, 9999px, 58px, 0); transform: skew(0.6deg); }
+            20% { clip: rect(28px, 9999px, 58px, 0); transform: skew(0.2deg); }
+            25% { clip: rect(44px, 9999px, 21px, 0); transform: skew(0.8deg); }
+            30% { clip: rect(18px, 9999px, 33px, 0); transform: skew(0.4deg); }
+            35% { clip: rect(43px, 9999px, 40px, 0); transform: skew(0.6deg); }
+            40% { clip: rect(57px, 9999px, 57px, 0); transform: skew(0.2deg); }
+        }
+
+        @media (max-width: 768px) {
+            .logo { letter-spacing: 0.05em; }
+            .play-button { padding: 16px 40px; }
+        }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-secondary); }
+        ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--accent-glow); }
+    </style>
+</head>
+<body>
+    <canvas id="particles" style="position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;"></canvas>
+
+    <div class="container">
+        <h1 class="logo glitch" data-text="ArtscapeLab">ArtscapeLab</h1>
+        <p class="description">
+            Сайт с чем-то там. Я не знаю зачем он существует
+        </p>
+        <a href="minesweeper.html" class="play-button">🎮 Играть в Сапёра</a>
+        <a href="gallery.html" class="play-button" style="margin-top: 20px;">📁 Хранилище</a>
+    </div>
+
+    <script>
+        // Анимация частиц
+        const canvas = document.getElementById('particles');
+        const ctx = canvas.getContext('2d');
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        resize();
+        window.addEventListener('resize', resize);
+
+        const particles = Array.from({ length: 90 }, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            speed: Math.random() * 0.5 + 0.15,
+            size: Math.random() * 2.5 + 0.5,
+            rotation: Math.random() * 360,
+            drift: (Math.random() - 0.5) * 0.3
+        }));
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                const alpha = Math.max(0, 0.7 - p.y / canvas.height * 0.5);
+                ctx.save();
+                ctx.translate(p.x, p.y);
+                ctx.rotate(p.rotation * Math.PI / 180);
+                ctx.fillStyle = `rgba(233, 69, 96, ${alpha})`;
+                ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size);
+                ctx.restore();
+
+                p.y -= p.speed;
+                p.x += p.drift;
+                p.rotation += 1.5;
+
+                if (p.y < -10) {
+                    p.y = canvas.height + 10;
+                    p.x = Math.random() * canvas.width;
+                }
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // Переход на страницу сапёра с fade-out
+        document.querySelector('.play-button').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.body.style.transition = 'opacity 0.4s ease';
+            document.body.style.opacity = '0';
+            setTimeout(() => {
+                window.location.href = 'minesweeper.html';
+            }, 400);
+        });
+    </script>
+</body>
+</html>
